@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './TableView.css'; // Import your CSS file
-import { Alert } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap'; // Import Modal and Button from react-bootstrap or any other library you prefer
 
 class TableView extends Component {
   constructor(props) {
@@ -9,6 +9,10 @@ class TableView extends Component {
       tableViewData: null,
       loading: true,
       editedValues: {},
+      showResolutionPopup: false, // State to control the Resolution popup visibility
+      resolutionText: '', // State to store the full Resolution text
+      showErrorDescPopup: false, // State to control the ErrorDesc popup visibility
+      errorDescText: '', // State to store the full ErrorDesc text
     };
   }
 
@@ -28,78 +32,43 @@ class TableView extends Component {
       });
   }
 
-  handleEditClick(alertID) {
-    // Clone the current edited values
-    const editedValues = { ...this.state.editedValues };
+  handleTruncateTextClick = (text) => {
+    // For the generic popup, you can set the popupText state
+    this.setState({
+      showPopup: true,
+      popupText: text,
+    });
+  };
 
-    // Store the current row values in the editedValues state
-    const alert = this.state.tableViewData.alert.find(
-      (alert) => alert.alertID === alertID
-    );
-    editedValues[alertID] = { ...alert };
+  handleErrorDescClick = (text) => {
+    // For the ErrorDesc popup, set the errorDescText state
+    this.setState({
+      showErrorDescPopup: true,
+      errorDescText: text,
+    });
+  };
 
-    this.setState({ editedValues });
-  }
+  handleResolutionClick = (text) => {
+    // For the Resolution popup, set the resolutionText state
+    this.setState({
+      showResolutionPopup: true,
+      resolutionText: text,
+    });
+  };
 
-  handleInputChange(event, alertID, fieldName) {
-    // Clone the current edited values
-    const editedValues = { ...this.state.editedValues };
+  handleClosePopup = () => {
+    // Close both popups by resetting their respective states
+    this.setState({
+      showPopup: false,
+      showErrorDescPopup: false,
+      showResolutionPopup: false,
+      popupText: '',
+      errorDescText: '',
+      resolutionText: '',
+    });
+  };
 
-    // Update the edited value for the specific field
-    editedValues[alertID][fieldName] = event.target.value;
-
-    this.setState({ editedValues });
-  }
-
-  handleCancelEdit(alertID) {
-    // Clone the current edited values
-    const editedValues = { ...this.state.editedValues };
-
-    // Remove the edited values for the specific alertID
-    delete editedValues[alertID];
-
-    this.setState({ editedValues });
-  }
-
-  handleSendNotification(alert) {
-    console.log("create JIRA ticket")
-    window.alert("JIRA ticket has been created successfully")
-  }
-
-  handleUpdateClick(alertID) {
-    console.log(">>>>>>>",alertID)
-    const editedAlert = this.state.editedValues[alertID];
-    console.log(">>>>>>>",editedAlert)
-    // After a successful update, you can remove the alertID from the editedValues state
-    const editedValues = { ...this.state.editedValues };
-    delete editedValues[alertID];
-
-    this.setState({ editedValues });
-    // Prepare the updated alert data
- // Prepare the updated alert data
- const updatedAlert = {
-  id: alertID,
-  active: editedAlert.active, // Convert 'Yes' to true, 'No' to false
-};
-
-fetch('http://localhost:8080/alerts/updateFEAlert', {
-  method: 'PUT',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(editedAlert),
-})
-  .then((response) => response.json())
-  .then((updatedAlertResponse) => {
-    // Handle the response from the server if needed
-    console.log('Updated alert:', updatedAlertResponse);
-    window.location.reload();
-  })
-  .catch((error) => {
-    console.error('Error updating alert:', error);
-  });
-    
-  }
+  // ... (rest of the component code)
 
   render() {
     const { tableViewData, loading, editedValues } = this.state;
@@ -119,58 +88,79 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
       );
 
       const isEditing = !!editedValues[alert.alertID];
-            // Check if the severity is "critical"
-            const isCritical = alert.severity === "CRITICAL";
-            const isMedium = alert.severity === "MEDIUM";
-            const isLow = alert.severity === "LOW";
+      const isCritical = alert.severity === 'CRITICAL';
+      const isMedium = alert.severity === 'MEDIUM';
+      const isLow = alert.severity === 'LOW';
 
-            let severityClass = "";
+      let severityClass = '';
 
-            if (isCritical) {
-              severityClass = "critical-cell";
-            } else if (isMedium) {
-              severityClass = "medium-cell";
-            } else if (isLow) {
-              severityClass = "low-cell";
-            }
+      if (isCritical) {
+        severityClass = 'critical-cell';
+      } else if (isMedium) {
+        severityClass = 'medium-cell';
+      } else if (isLow) {
+        severityClass = 'low-cell';
+      }
 
       return (
-    
-
         <tr key={alert.alertID}>
           <td>{alert.alertID}</td>
-          <td>
-            {
-              alert.createdtime}
-          </td>
+          <td>{alert.createdtime}</td>
           <td>{alert.env}</td>
           <td>{alert.count}</td>
-          <td>
-          {isEditing ? (
-  <select
-    value={editedValues[alert.alertID]?.active || ''}
-    onChange={(e) =>
-      this.handleInputChange(e, alert.alertID, 'active')
-    }
-  >
-    <option value="Y">Y</option>
-    <option value="N">N</option>
-  </select>
-) : (
-  alert.active
-)}
 
-</td>
-
+          <td className="truncate-text" data-title="ErrorDesc">
+            {resolution ? (
+              <span
+                className="clickable-text"
+                onClick={() => this.handleErrorDescClick(resolution.errorDesc)}
+              >
+                {resolution.errorDesc.length > 20
+                  ? `${resolution.errorDesc.substring(0, 20)}...`
+                  : resolution.errorDesc}
+              </span>
+            ) : (
+              'N/A'
+            )}
+          </td>
           <td className={severityClass}>{alert.severity}</td>
-          <td>{resolution ? resolution.resolution : 'N/A'}</td>
+          <td className="truncate-text" data-title="Resolution">
+            {resolution ? (
+              <span
+                className="clickable-text"
+                onClick={() => this.handleResolutionClick(resolution.resolution)}
+              >
+                {resolution.resolution}
+              </span>
+            ) : (
+              'N/A'
+            )}
+          </td>
           <td>{resolution ? resolution.team : 'N/A'}</td>
           <td>{resolution ? resolution.contact : 'N/A'}</td>
           <td>
-      <button onClick={() => this.handleSendNotification(alert)}>
-        Send Notification
-      </button>
-    </td>
+            {isEditing ? (
+              <select
+                value={editedValues[alert.alertID]?.active || ''}
+                onChange={(e) =>
+                  this.handleInputChange(e, alert.alertID, 'active')
+                }
+              >
+                <option value="Y">Y</option>
+                <option value="N">N</option>
+              </select>
+            ) : (
+              alert.active
+            )}
+          </td>
+          <td>
+            <button
+              className="jira-button"
+              onClick={() => this.handleSendNotification(alert)}
+            >
+              Create JIRA
+            </button>
+          </td>
           <td>
             {isEditing ? (
               <div>
@@ -182,7 +172,10 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
                 </button>
               </div>
             ) : (
-              <button onClick={() => this.handleEditClick(alert.alertID)}>
+              <button
+                className="edit-button"
+                onClick={() => this.handleEditClick(alert.alertID)}
+              >
                 Edit
               </button>
             )}
@@ -193,25 +186,49 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
 
     return (
       <div>
-      
-        <table>
-          <thead>
-            <tr>
-              <th>Alert ID</th>
-              <th>Created Time</th>
-              <th>Environment</th>
-              <th>Count</th>
-              <th>Active</th>
-              <th>Severity</th>
-              <th>Resolution</th>
-              <th>Team</th>
-              <th>Contact</th>
-              <th>Notify</th>
-             
-            </tr>
-          </thead>
-          <tbody>{tableRows}</tbody>
-        </table>
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Alert ID</th>
+                <th>Created Time</th>
+                <th>Environment</th>
+                <th>Count</th>
+                <th>Severity</th>
+                <th>ErrorDesc</th>
+                <th>Resolution</th>
+                <th>Team</th>
+                <th>Contact</th>
+                <th>Active</th>
+                <th>Notify</th>
+              </tr>
+            </thead>
+            <tbody>{tableRows}</tbody>
+          </table>
+        </div>
+        {/* Separate modals for ErrorDesc and Resolution */}
+        <Modal show={this.state.showResolutionPopup} onHide={this.handleClosePopup}>
+          <Modal.Header closeButton>
+            <Modal.Title>Resolution</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>{this.state.resolutionText}</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.handleClosePopup}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        <Modal show={this.state.showErrorDescPopup} onHide={this.handleClosePopup}>
+          <Modal.Header closeButton>
+            <Modal.Title>ErrorDesc</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>{this.state.errorDescText}</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.handleClosePopup}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     );
   }

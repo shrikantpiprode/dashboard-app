@@ -88,16 +88,33 @@ table {
   td[data-label="Actions"] button.edit:hover {
     background-color: #218838;
   }
-  /* Add this CSS class to your TableView.css file */
-.critical-cell {
-    background-color: red; /* Light orange color for critical cells */
-    /* Add any other styles you want */
+  
+  /* Custom styles for critical, medium, and low cells */
+  .critical-cell {
+    background-color: red; /* Light red color for critical cells */
+    color: white; /* Text color for critical cells */
   }
+  
   .medium-cell {
-    background-color: orange; /* Light orange color for critical cells */
-    /* Add any other styles you want */
+    background-color: orange; /* Light orange color for medium cells */
+    color: white; /* Text color for medium cells */
   }
+  
   .low-cell {
-    background-color: green; /* Light orange color for critical cells */
-    /* Add any other styles you want */
+    background-color: green; /* Light green color for low cells */
+    color: white; /* Text color for low cells */
   }
+  .truncate-text {
+    white-space: nowrap;      /* Prevent text from wrapping */
+    overflow: hidden;         /* Hide any overflowing text */
+    text-overflow: ellipsis;  /* Display an ellipsis (...) for overflow */
+    max-width: 150px;         /* Adjust the max-width to your preference */
+    transition: background-color 0.3s ease; /* Add a transition for smooth color change */
+    cursor: pointer; /* Add a pointer cursor */
+  }
+  .truncate-text:hover {
+    background-color: lightblue; /* Change the background color on hover */
+  }
+  
+  /* Add any other styles you want */
+  

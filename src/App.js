@@ -64,14 +64,19 @@ function App() {
     <div className="App">
       <nav className="navbar navbar-dark bg-dark">
         <div className="container">
-          <span className="navbar-brand mb-0 h1">Dashboard</span>
+        <div className="logo">
+            <img src="/cisco_logo.jpeg"  width="40" height="40" /> {/* Add your logo here */}
+            <span  className="navbar-brand mb-0 h1"> <h2 style={{margin:10, padding:20}}> EagleView Dashboard</h2> </span>
+          </div>
         </div>
       </nav>
-      <h2>Critical Alerts</h2>
+        <h2>Real-Time Critical Alerts Monitor</h2>
       <div className="container mt-4">
-        <Button variant="primary" onClick={handleAddAlert}>
-          Add New Alert
-        </Button>
+      <div className="button-container">
+            <Button variant="primary" onClick={handleAddAlert}>
+              Add New Alert
+            </Button>
+          </div>
         <TableView />
         <Modal show={showModal} onHide={handleModalClose}>
           <Modal.Header closeButton>

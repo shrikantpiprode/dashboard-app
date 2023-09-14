@@ -154,7 +154,7 @@ class TableView extends Component {
             )}
           </td>
           <td>
-            <button
+            <button style={{color:'white',backgroundColor:'green'}}
               className="jira-button"
               onClick={() => this.handleSendNotification(alert)}
             >
@@ -172,7 +172,7 @@ class TableView extends Component {
                 </button>
               </div>
             ) : (
-              <button
+              <button style={{color:'white',backgroundColor:'blue'}}
                 className="edit-button"
                 onClick={() => this.handleEditClick(alert.alertID)}
               >
@@ -194,8 +194,8 @@ class TableView extends Component {
                 <th>Created Time</th>
                 <th>Environment</th>
                 <th>Count</th>
-                <th>Severity</th>
                 <th>ErrorDesc</th>
+                <th>Severity</th>
                 <th>Resolution</th>
                 <th>Team</th>
                 <th>Contact</th>

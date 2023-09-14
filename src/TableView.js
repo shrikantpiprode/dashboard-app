@@ -98,7 +98,7 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
     
   }
 
-  
+
   handleTruncateTextClick = (text) => {
     // For the generic popup, you can set the popupText state
     this.setState({
@@ -197,7 +197,7 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
           <td>{alert.env}</td>
           <td>{alert.count}</td>
 
-          <td className="truncate-text" data-title="ErrorDesc">
+          <td className="truncate-text1" data-title="ErrorDesc">
             {resolution ? (
               <span
                 className="clickable-text"

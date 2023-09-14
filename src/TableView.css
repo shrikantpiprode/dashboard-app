@@ -113,7 +113,19 @@ table {
     cursor: pointer; /* Add a pointer cursor */
   }
   .truncate-text:hover {
-    background-color: lightblue; /* Change the background color on hover */
+    background-color: green; /* Change the background color on hover */
+  }
+
+  .truncate-text1 {
+    white-space: nowrap;      /* Prevent text from wrapping */
+    overflow: hidden;         /* Hide any overflowing text */
+    text-overflow: ellipsis;  /* Display an ellipsis (...) for overflow */
+    max-width: 150px;         /* Adjust the max-width to your preference */
+    transition: background-color 0.3s ease; /* Add a transition for smooth color change */
+    cursor: pointer; /* Add a pointer cursor */
+  }
+  .truncate-text1:hover {
+    background-color: rgb(244, 208, 6); /* Change the background color on hover */
   }
   
   /* Add any other styles you want */

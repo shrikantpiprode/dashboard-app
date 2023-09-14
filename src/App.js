@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button, Form } from "react-bootstrap";
 import "./App.css";
 import TableView from "./TableView";
+import Footer from './Footer';
 
 function App() {
   const [selectedRows, setSelectedRows] = useState([]);
@@ -98,6 +99,8 @@ function App() {
           </div>
         </div>
       </nav>
+      <br/>
+      <br/>
       <h2>Real-Time Critical Alerts Monitor</h2>
       <div className="container mt-4">
         <div className="button-container">
@@ -251,7 +254,18 @@ function App() {
           </Modal.Footer>
         </Modal>
       </div>
+      
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <div style={{backgroundColor:'black', color:'white'}}>
+
+      <Footer /> 
+      </div>
     </div>
+
   );
 }
 

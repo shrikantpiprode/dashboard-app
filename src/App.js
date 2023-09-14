@@ -42,11 +42,8 @@ function App() {
   };
 
   const handleFormSubmit = () => {
-    // Here, you can add the logic to call the API as a POST request to create a new alert.
-    // You can use the fetch API or a library like Axios for making the POST request.
-
+    // First, make the API call to create a new alert resolution
     fetch("http://localhost:8080/alerts-resolution", {
-      // Change the URL to the appropriate endpoint
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -55,15 +52,34 @@ function App() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("New Alert Created:", data);
-        setShowModal(false); // Close the modal
-        // You can add logic to refresh the alert table or handle the response as needed.
+        console.log("New Alert Resolution Created:", data);
+  
+        // If the alert resolution call is successful, make another API call
+        // to save the alert object
+        fetch("http://localhost:8080/alerts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newAlertData), // Assuming newAlertData contains alert object data
+        })
+          .then((response) => response.json())
+          .then((alertData) => {
+            console.log("New Alert Created:", alertData);
+            setShowModal(false); // Close the modal
+  
+            // You can add logic to refresh the alert table or handle the response as needed.
+          })
+          .catch((error) => {
+            console.error("Error creating new alert:", error);
+          });
       })
       .catch((error) => {
-        console.error("Error creating new alert:", error);
+        console.error("Error creating new alert resolution:", error);
       });
     window.location.reload();
   };
+  
 
   return (
     <div className="App">
@@ -125,6 +141,7 @@ function App() {
                   }
                 />
               </Form.Group>
+
               <Form.Group controlId="resolution">
                 <Form.Label>Resolution</Form.Label>
                 <Form.Control
@@ -165,6 +182,62 @@ function App() {
                     })
                   }
                 />
+              </Form.Group>
+              <Form.Group controlId="env">
+                <Form.Label>Environment</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter Environment"
+                  value={newAlertData.env}
+                  onChange={(e) =>
+                    setNewAlertData({ ...newAlertData, env: e.target.value })
+                  }
+                />
+              </Form.Group>
+              <Form.Group controlId="count">
+                <Form.Label>Count</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="Enter Count"
+                  value={newAlertData.count}
+                  onChange={(e) =>
+                    setNewAlertData({
+                      ...newAlertData,
+                      count: parseInt(e.target.value),
+                    })
+                  }
+                />
+              </Form.Group>
+              <Form.Group controlId="active">
+                <Form.Label>Active</Form.Label>
+                <Form.Check
+                  type="checkbox"
+                  label="Active"
+                  checked={newAlertData.active}
+                  onChange={(e) =>
+                    setNewAlertData({
+                      ...newAlertData,
+                      active: e.target.checked,
+                    })
+                  }
+                />
+              </Form.Group>
+              <Form.Group controlId="severity">
+                <Form.Label>Severity</Form.Label>
+                <Form.Control
+                  as="select" // Use select input for dropdown
+                  value={newAlertData.severity || "CRITICAL"} 
+                  onChange={(e) =>
+                    setNewAlertData({
+                      ...newAlertData,
+                      severity: e.target.value ||  "CRITICAL",
+                    })
+                  }
+                >
+                  <option value="CRITICAL">CRITICAL</option>
+                  <option value="MEDIUM">MEDIUM</option>
+                  <option value="LOW">LOW</option>
+                </Form.Control>
               </Form.Group>
             </Form>
           </Modal.Body>

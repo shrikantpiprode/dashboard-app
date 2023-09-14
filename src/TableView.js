@@ -31,7 +31,74 @@ class TableView extends Component {
         this.setState({ loading: false });
       });
   }
+  handleEditClick(alertID) {
+    // Clone the current edited values
+    const editedValues = { ...this.state.editedValues };
 
+    // Store the current row values in the editedValues state
+    const alert = this.state.tableViewData.alert.find(
+      (alert) => alert.alertID === alertID
+    );
+    editedValues[alertID] = { ...alert };
+
+    this.setState({ editedValues });
+  }
+
+  handleInputChange(event, alertID, fieldName) {
+    // Clone the current edited values
+    const editedValues = { ...this.state.editedValues };
+
+    // Update the edited value for the specific field
+    editedValues[alertID][fieldName] = event.target.value;
+
+    this.setState({ editedValues });
+  }
+
+  handleCancelEdit(alertID) {
+    // Clone the current edited values
+    const editedValues = { ...this.state.editedValues };
+
+    // Remove the edited values for the specific alertID
+    delete editedValues[alertID];
+
+  }
+
+  handleUpdateClick(alertID) {
+    console.log(">>>>>>>",alertID)
+    const editedAlert = this.state.editedValues[alertID];
+    console.log(">>>>>>>",editedAlert)
+    // After a successful update, you can remove the alertID from the editedValues state
+    const editedValues = { ...this.state.editedValues };
+    delete editedValues[alertID];
+
+    this.setState({ editedValues });
+    // Prepare the updated alert data
+ // Prepare the updated alert data
+ const updatedAlert = {
+  id: alertID,
+  active: editedAlert.active, // Convert 'Yes' to true, 'No' to false
+};
+
+fetch('http://localhost:8080/alerts/updateFEAlert', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(editedAlert),
+})
+  .then((response) => response.json())
+  .then((updatedAlertResponse) => {
+    // Handle the response from the server if needed
+    console.log('Updated alert:', updatedAlertResponse);
+    window.location.reload();
+  })
+  .catch((error) => {
+    console.error('Error updating alert:', error);
+  });
+    
+  }
+
+  
   handleTruncateTextClick = (text) => {
     // For the generic popup, you can set the popupText state
     this.setState({
@@ -68,7 +135,28 @@ class TableView extends Component {
     });
   };
 
-  // ... (rest of the component code)
+  handleSendNotification = (resdata) => {
+    const summary = resdata.errorDesc; // Get the summary from alert.errorDesc
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>"+summary)
+    const apiUrl = "http://localhost:8080/notification/jira";
+  
+    fetch(apiUrl, {
+      method: "POST", // Assuming it's a GET request
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(summary),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('JIRA Notification Response:', data);
+        window.alert('JIRA ticket has been created successfully');
+      })
+      .catch((error) => {
+        console.error('Error creating JIRA ticket:', error);
+      });
+  };
+  
 
   render() {
     const { tableViewData, loading, editedValues } = this.state;
@@ -156,7 +244,7 @@ class TableView extends Component {
           <td>
             <button style={{color:'white',backgroundColor:'green'}}
               className="jira-button"
-              onClick={() => this.handleSendNotification(alert)}
+              onClick={() => this.handleSendNotification(resolution)}
             >
               Create JIRA
             </button>

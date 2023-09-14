@@ -91,7 +91,7 @@ function App() {
             {/* Add your logo here */}
             <span className="navbar-brand mb-0 h1">
               {" "}
-              <h2 style={{ margin: 10, padding: 20 }}>
+              <h2 style={{ margin: 10, padding: 20 ,color:'gold'}}>
                 {" "}
                 EagleView Dashboard
               </h2>{" "}
@@ -101,7 +101,7 @@ function App() {
       </nav>
       <br/>
       <br/>
-      <h2>Real-Time Critical Alerts Monitor</h2>
+      <h2 style={{textAlign:'center',fontWeight: 'bold'}}>Real-Time Critical Alerts Monitor</h2>
       <div className="container mt-4">
         <div className="button-container">
           <Button variant="primary" onClick={handleAddAlert}>
@@ -109,11 +109,11 @@ function App() {
           </Button>
         </div>
         <TableView />
-        <Modal show={showModal} onHide={handleModalClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>Add New Alert</Modal.Title>
+        <Modal  show={showModal} onHide={handleModalClose}>
+          <Modal.Header style={{backgroundColor:'darkblue',color:'white'}} closeButton>
+            <Modal.Title>New Alert</Modal.Title>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body style={{backgroundColor:'lightgreen'}}>
             <Form>
               <Form.Group controlId="alertID">
                 <Form.Label>Alert ID</Form.Label>

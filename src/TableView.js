@@ -31,18 +31,6 @@ class TableView extends Component {
         this.setState({ loading: false });
       });
   }
-  handleEditClick(alertID) {
-    // Clone the current edited values
-    const editedValues = { ...this.state.editedValues };
-
-    // Store the current row values in the editedValues state
-    const alert = this.state.tableViewData.alert.find(
-      (alert) => alert.alertID === alertID
-    );
-    editedValues[alertID] = { ...alert };
-
-    this.setState({ editedValues });
-  }
 
   handleInputChange(event, alertID, fieldName) {
     // Clone the current edited values
@@ -54,6 +42,22 @@ class TableView extends Component {
     this.setState({ editedValues });
   }
 
+  handleEditClick(alertID) {
+    // Clone the current edited values
+    const editedValues = { ...this.state.editedValues };
+
+    // Store the current row values in the editedValues state
+    const alert = this.state.tableViewData.alert.find(
+      (alert) => alert.alertID === alertID
+    );
+    editedValues[alertID] = { ...alert };
+
+    // Set the isEditing property for the selected row to true
+    editedValues[alertID].isEditing = true;
+
+    this.setState({ editedValues });
+  }
+
   handleCancelEdit(alertID) {
     // Clone the current edited values
     const editedValues = { ...this.state.editedValues };
@@ -61,23 +65,23 @@ class TableView extends Component {
     // Remove the edited values for the specific alertID
     delete editedValues[alertID];
 
+    // Set the isEditing property for the selected row to false
+    const alertIndex = this.state.tableViewData.alert.findIndex(
+      (alert) => alert.alertID === alertID
+    );
+    this.state.tableViewData.alert[alertIndex].isEditing = false;
+
+    this.setState({ editedValues });
   }
 
   handleUpdateClick(alertID) {
-    console.log(">>>>>>>",alertID)
     const editedAlert = this.state.editedValues[alertID];
-    console.log(">>>>>>>",editedAlert)
     // After a successful update, you can remove the alertID from the editedValues state
     const editedValues = { ...this.state.editedValues };
     delete editedValues[alertID];
 
     this.setState({ editedValues });
-    // Prepare the updated alert data
- // Prepare the updated alert data
- const updatedAlert = {
-  id: alertID,
-  active: editedAlert.active, // Convert 'Yes' to true, 'No' to false
-};
+
 
 fetch('http://localhost:8080/alerts/updateFEAlert', {
   method: 'PUT',
@@ -176,6 +180,8 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
       );
 
       const isEditing = !!editedValues[alert.alertID];
+      // Add isEditing property to the row data
+      alert.isEditing = isEditing;
       const isCritical = alert.severity === 'CRITICAL';
       const isMedium = alert.severity === 'MEDIUM';
       const isLow = alert.severity === 'LOW';
@@ -250,7 +256,7 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
             </button>
           </td>
           <td>
-            {isEditing ? (
+            {alert.isEditing ? (
               <div>
                 <button onClick={() => this.handleUpdateClick(alert.alertID)}>
                   Update
@@ -260,7 +266,8 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
                 </button>
               </div>
             ) : (
-              <button style={{color:'white',backgroundColor:'blue'}}
+              <button
+                style={{ color: 'white', backgroundColor: 'blue' }}
                 className="edit-button"
                 onClick={() => this.handleEditClick(alert.alertID)}
               >
@@ -295,28 +302,41 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
           </table>
         </div>
         {/* Separate modals for ErrorDesc and Resolution */}
-        <Modal show={this.state.showResolutionPopup} onHide={this.handleClosePopup}>
-          <Modal.Header closeButton>
-            <Modal.Title>Resolution</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>{this.state.resolutionText}</Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={this.handleClosePopup}>
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal>
-        <Modal show={this.state.showErrorDescPopup} onHide={this.handleClosePopup}>
-          <Modal.Header closeButton>
-            <Modal.Title>ErrorDesc</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>{this.state.errorDescText}</Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={this.handleClosePopup}>
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <Modal
+  show={this.state.showResolutionPopup}
+  onHide={this.handleClosePopup}
+  size="lg" // Set the size of the modal to 'lg' (large)
+>
+  <Modal.Header closeButton>
+    <Modal.Title>Resolution</Modal.Title>
+  </Modal.Header>
+  <Modal.Body style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+    {this.state.resolutionText}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={this.handleClosePopup}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
+<Modal
+  show={this.state.showErrorDescPopup}
+  onHide={this.handleClosePopup}
+  size="lg" // Set the size of the modal to 'lg' (large)
+>
+  <Modal.Header closeButton>
+    <Modal.Title>ErrorDesc</Modal.Title>
+  </Modal.Header>
+  <Modal.Body style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+    {this.state.errorDescText}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={this.handleClosePopup}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
+
       </div>
     );
   }

@@ -1,37 +1,15 @@
-.App {
-  text-align: center;
+/* Reset some default styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
 }
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-/* App.css */
 
 /* Navbar */
 .navbar {
+  background-color: #333; /* Dark background color for the navbar */
+  color: #fff; /* Text color for the navbar */
+  padding: 10px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -52,17 +30,44 @@
 .container {
   text-align: center;
 }
+
 .button-container {
   text-align: right; /* Align the button to the right */
 }
+
 /* Styling for the table goes here */
 
+/* Page background */
+.App {
+  background-color: #f4f4f4; /* Light gray background color for the page */
+  color: #333; /* Default text color */
+}
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Header styles */
+h2 {
+  color: #333; /* Dark text color for headings */
+}
+
+/* Form input styles */
+.form-control {
+  border-color: #333; /* Dark border color for form inputs */
+}
+
+/* Form button styles */
+.btn-primary {
+  background-color: #333; /* Dark background color for primary buttons */
+  border-color: #333; /* Dark border color for primary buttons */
+}
+
+.btn-primary:hover {
+  background-color: #555; /* Darker background color on hover */
+  border-color: #555; /* Darker border color on hover */
+}
+
+/* Footer styles */
+.footer {
+  background-color: #333; /* Dark background color for the footer */
+  color: #fff; /* Text color for the footer */
+  padding: 20px 0;
+  text-align: center;
 }

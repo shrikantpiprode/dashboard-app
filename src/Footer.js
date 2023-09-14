@@ -5,7 +5,7 @@ function Footer() {
   return (
     <footer className="footer">
       <div className="container">
-        <p>&copy; 2023 Cisco Hackathon</p>
+        <p>&copy; 2023 Cisco Hackfest India</p>
         <p>All rights reserved.</p>
       </div>
     </footer>

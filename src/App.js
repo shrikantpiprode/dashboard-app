@@ -1,23 +1,21 @@
 import React, { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-import { Modal, Button } from 'react-bootstrap'; // Import react-bootstrap components
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Modal, Button, Form } from 'react-bootstrap';
 import './App.css';
 import TableView from './TableView';
 
 function App() {
-  const [data, setData] = useState([
-    { id: 1, exception: 'Item 1', count: 'Item 1', timestamp: '2023-09-05', desc: 'Description 1', resolution: 'Resolution 1' },
-    { id: 2, exception: 'Item 2', count: 'Item 1', timestamp: '2023-09-06', desc: 'Description 2', resolution: 'Resolution 2' },
-    { id: 3, exception: 'Item 3', count: 'Item 1', timestamp: '2023-09-07', desc: 'Description 3', resolution: 'Resolution 3' },
-  ]);
-
-  // State to track selected rows
   const [selectedRows, setSelectedRows] = useState([]);
-  
-  // State to control the modal visibility
   const [showModal, setShowModal] = useState(false);
+  const [newAlertData, setNewAlertData] = useState({
+    alertID: '',
+    createdtime: '',
+    env: '',
+    count: 0,
+    active: true,
+    severity: '',
+  });
 
-  // Function to handle row selection
   const handleRowSelect = (id) => {
     if (selectedRows.includes(id)) {
       setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
@@ -26,15 +24,40 @@ function App() {
     }
   };
 
-  // Function to send notifications
   const sendNotifications = () => {
-    // Here, you can implement the logic to send notifications via email.
-    // You might need a backend service or an email API to handle this.
-    // For this example, we'll just log the selected rows to the console.
     console.log("Selected Rows:", selectedRows);
-
-    // Close the modal
     setShowModal(false);
+  };
+
+  const handleAddAlert = () => {
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+  };
+
+  const handleFormSubmit = () => {
+    // Here, you can add the logic to call the API as a POST request to create a new alert.
+    // You can use the fetch API or a library like Axios for making the POST request.
+
+    fetch('http://localhost:8080/alerts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newAlertData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('New Alert Created:', data);
+        setShowModal(false); // Close the modal
+        // You can add logic to refresh the alert table or handle the response as needed.
+      })
+      .catch((error) => {
+        console.error('Error creating new alert:', error);
+      });
+      window.location.reload();
   };
 
   return (
@@ -44,30 +67,96 @@ function App() {
           <span className="navbar-brand mb-0 h1">Dashboard</span>
         </div>
       </nav>
+      <h2>Critical Alerts</h2>
       <div className="container mt-4">
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          Send Notification
-        </button>
-      <TableView/>
+        <Button variant="primary" onClick={handleAddAlert}>
+          Add New Alert
+        </Button>
+        <TableView />
+        <Modal show={showModal} onHide={handleModalClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Add New Alert</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group controlId="alertID">
+                <Form.Label>Alert ID</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter Alert ID"
+                  value={newAlertData.alertID}
+                  onChange={(e) =>
+                    setNewAlertData({ ...newAlertData, alertID: e.target.value })
+                  }
+                />
+              </Form.Group>
+              <Form.Group controlId="createdtime">
+                <Form.Label>Created Time</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter Created Time"
+                  value={newAlertData.createdtime}
+                  onChange={(e) =>
+                    setNewAlertData({ ...newAlertData, createdtime: e.target.value })
+                  }
+                />
+              </Form.Group>
+              <Form.Group controlId="env">
+                <Form.Label>Environment</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter Environment"
+                  value={newAlertData.env}
+                  onChange={(e) =>
+                    setNewAlertData({ ...newAlertData, env: e.target.value })
+                  }
+                />
+              </Form.Group>
+              <Form.Group controlId="count">
+                <Form.Label>Count</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="Enter Count"
+                  value={newAlertData.count}
+                  onChange={(e) =>
+                    setNewAlertData({ ...newAlertData, count: parseInt(e.target.value) })
+                  }
+                />
+              </Form.Group>
+              <Form.Group controlId="active">
+                <Form.Label>Active</Form.Label>
+                <Form.Check
+                  type="checkbox"
+                  label="Active"
+                  checked={newAlertData.active}
+                  onChange={(e) =>
+                    setNewAlertData({ ...newAlertData, active: e.target.checked })
+                  }
+                />
+              </Form.Group>
+              <Form.Group controlId="severity">
+                <Form.Label>Severity</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter Severity"
+                  value={newAlertData.severity}
+                  onChange={(e) =>
+                    setNewAlertData({ ...newAlertData, severity: e.target.value })
+                  }
+                />
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleModalClose}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={handleFormSubmit}>
+              Submit
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
-
-      {/* Modal for sending notifications */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Send Notification</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to send notifications to the selected rows?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={sendNotifications}>
-            Send
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 }

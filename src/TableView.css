@@ -1,0 +1,103 @@
+/* Style the table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    margin-top: 20px;
+    border: 2px solid #007bff; /* Add a border to the table with the desired color */
+  }
+  
+  /* Style table headers */
+  th {
+    background-color: #007bff; /* Header background color */
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+  }
+  
+  /* Style table rows */
+  tr:nth-child(even) {
+    background-color: #f2f2f2; /* Even row background color */
+  }
+  
+  /* Style hovered rows */
+  tr:hover {
+    background-color: #d3d3d3; /* Hovered row background color */
+  }
+  
+  /* Style table cells */
+  td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* Center text in "Active" column */
+  td:nth-child(5) {
+    text-align: center;
+  }
+  
+  /* Center text in "Count" column */
+  td:nth-child(4) {
+    text-align: center;
+  }
+  
+  /* Center text in "Severity" column */
+  td:nth-child(6) {
+    text-align: center;
+  }
+  
+  /* Add some padding to the Actions column */
+  td:nth-child(10) {
+    text-align: center;
+    padding: 0;
+  }
+  
+  /* Style the buttons in the Actions column */
+  td:nth-child(10) button {
+    margin: 5px;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  /* Style the Cancel button */
+  td:nth-child(10) button.cancel {
+    background-color: #dc3545;
+  }
+  
+  /* Style the row data */
+  td[data-label="Alert ID"] {
+    font-weight: bold;
+    color: #007bff;
+  }
+  
+  td[data-label="Active"] {
+    font-weight: bold;
+  }
+  
+  /* Style the Edit button */
+  td[data-label="Actions"] button.edit {
+    background-color: #28a745;
+  }
+  
+  /* Style the Edit button on hover */
+  td[data-label="Actions"] button.edit:hover {
+    background-color: #218838;
+  }
+  /* Add this CSS class to your TableView.css file */
+.critical-cell {
+    background-color: red; /* Light orange color for critical cells */
+    /* Add any other styles you want */
+  }
+  .medium-cell {
+    background-color: orange; /* Light orange color for critical cells */
+    /* Add any other styles you want */
+  }
+  .low-cell {
+    background-color: green; /* Light orange color for critical cells */
+    /* Add any other styles you want */
+  }

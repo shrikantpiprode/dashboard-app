@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import './TableView.css'; // Import your CSS file
-import { Modal, Button } from 'react-bootstrap'; // Import Modal and Button from react-bootstrap or any other library you prefer
+import './TableView.css';
+import { Modal, Button } from 'react-bootstrap';
 
 class TableView extends Component {
   constructor(props) {
@@ -9,10 +9,12 @@ class TableView extends Component {
       tableViewData: null,
       loading: true,
       editedValues: {},
-      showResolutionPopup: false, // State to control the Resolution popup visibility
-      resolutionText: '', // State to store the full Resolution text
-      showErrorDescPopup: false, // State to control the ErrorDesc popup visibility
-      errorDescText: '', // State to store the full ErrorDesc text
+      showResolutionPopup: false,
+      resolutionText: '',
+      showErrorDescPopup: false,
+      errorDescText: '',
+      sortBy: 'alertID', // Initial column to sort by
+      sortAsc: true, // Initial sorting order (ascending)
     };
   }
 
@@ -31,6 +33,19 @@ class TableView extends Component {
         this.setState({ loading: false });
       });
   }
+
+  handleSort = (column) => {
+    const { sortAsc, sortBy } = this.state;
+
+    // If the same column is clicked again, reverse the sorting order
+    const newSortAsc = column === sortBy ? !sortAsc : true;
+
+    // Update the state with the new sorting column and order
+    this.setState({
+      sortBy: column,
+      sortAsc: newSortAsc,
+    });
+  };
 
   handleInputChange(event, alertID, fieldName) {
     // Clone the current edited values
@@ -82,26 +97,23 @@ class TableView extends Component {
 
     this.setState({ editedValues });
 
-
-fetch('http://localhost:8080/alerts/updateFEAlert', {
-  method: 'PUT',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(editedAlert),
-})
-  .then((response) => response.json())
-  .then((updatedAlertResponse) => {
-    // Handle the response from the server if needed
-    console.log('Updated alert:', updatedAlertResponse);
-    window.location.reload();
-  })
-  .catch((error) => {
-    console.error('Error updating alert:', error);
-  });
-    
+    fetch('http://localhost:8080/alerts/updateFEAlert', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(editedAlert),
+    })
+      .then((response) => response.json())
+      .then((updatedAlertResponse) => {
+        // Handle the response from the server if needed
+        console.log('Updated alert:', updatedAlertResponse);
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.error('Error updating alert:', error);
+      });
   }
-
 
   handleTruncateTextClick = (text) => {
     // For the generic popup, you can set the popupText state
@@ -141,13 +153,13 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
 
   handleSendNotification = (resdata) => {
     const summary = resdata.errorDesc; // Get the summary from alert.errorDesc
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>"+summary)
-    const apiUrl = "http://localhost:8080/notification/jira";
-  
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>' + summary);
+    const apiUrl = 'http://localhost:8080/notification/jira';
+
     fetch(apiUrl, {
-      method: "POST", // Assuming it's a GET request
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(summary),
     })
@@ -160,10 +172,9 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
         console.error('Error creating JIRA ticket:', error);
       });
   };
-  
 
   render() {
-    const { tableViewData, loading, editedValues } = this.state;
+    const { tableViewData, loading, editedValues, sortBy, sortAsc } = this.state;
 
     if (loading) {
       return <div>Loading...</div>;
@@ -173,15 +184,27 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
       return <div>Error: Data not available.</div>;
     }
 
-    // Iterate through the data and create a table
-    const tableRows = tableViewData.alert.map((alert) => {
+    // Sort the alert data based on the selected column and order
+    const sortedAlerts = tableViewData.alert.slice().sort((a, b) => {
+      const sortValueA = a[sortBy];
+      const sortValueB = b[sortBy];
+
+      if (sortValueA < sortValueB) {
+        return sortAsc ? -1 : 1;
+      }
+      if (sortValueA > sortValueB) {
+        return sortAsc ? 1 : -1;
+      }
+      return 0;
+    });
+
+    // Iterate through the sorted data and create a table
+    const tableRows = sortedAlerts.map((alert) => {
       const resolution = tableViewData.alertsResolution.find(
         (ar) => ar.alertID === alert.alertID
       );
 
       const isEditing = !!editedValues[alert.alertID];
-      // Add isEditing property to the row data
-      alert.isEditing = isEditing;
       const isCritical = alert.severity === 'CRITICAL';
       const isMedium = alert.severity === 'MEDIUM';
       const isLow = alert.severity === 'LOW';
@@ -202,7 +225,6 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
           <td>{alert.createdtime}</td>
           <td>{alert.env}</td>
           <td>{alert.count}</td>
-
           <td className="truncate-text1" data-title="ErrorDesc">
             {resolution ? (
               <span
@@ -248,7 +270,8 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
             )}
           </td>
           <td>
-            <button style={{color:'white',backgroundColor:'green'}}
+            <button
+              style={{ color: 'white', backgroundColor: 'green' }}
               className="jira-button"
               onClick={() => this.handleSendNotification(resolution)}
             >
@@ -256,7 +279,7 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
             </button>
           </td>
           <td>
-            {alert.isEditing ? (
+            {isEditing ? (
               <div>
                 <button onClick={() => this.handleUpdateClick(alert.alertID)}>
                   Update
@@ -285,8 +308,18 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
           <table>
             <thead>
               <tr>
-                <th>Alert ID</th>
-                <th>Created Time</th>
+                <th onClick={() => this.handleSort('alertID')}>
+                  Alert ID{' '}
+                  {sortBy === 'alertID' && (
+                    <span>{sortAsc ? '▲' : '▼'}</span>
+                  )}
+                </th>
+                <th onClick={() => this.handleSort('createdtime')}>
+                  Created Time{' '}
+                  {sortBy === 'createdtime' && (
+                    <span>{sortAsc ? '▲' : '▼'}</span>
+                  )}
+                </th>
                 <th>Environment</th>
                 <th>Count</th>
                 <th>ErrorDesc</th>
@@ -303,40 +336,39 @@ fetch('http://localhost:8080/alerts/updateFEAlert', {
         </div>
         {/* Separate modals for ErrorDesc and Resolution */}
         <Modal
-  show={this.state.showResolutionPopup}
-  onHide={this.handleClosePopup}
-  size="lg" // Set the size of the modal to 'lg' (large)
->
-  <Modal.Header closeButton>
-    <Modal.Title>Resolution</Modal.Title>
-  </Modal.Header>
-  <Modal.Body style={{ maxHeight: '80vh', overflowY: 'auto' }}>
-    {this.state.resolutionText}
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={this.handleClosePopup}>
-      Close
-    </Button>
-  </Modal.Footer>
-</Modal>
-<Modal
-  show={this.state.showErrorDescPopup}
-  onHide={this.handleClosePopup}
-  size="lg" // Set the size of the modal to 'lg' (large)
->
-  <Modal.Header closeButton>
-    <Modal.Title>ErrorDesc</Modal.Title>
-  </Modal.Header>
-  <Modal.Body style={{ maxHeight: '80vh', overflowY: 'auto' }}>
-    {this.state.errorDescText}
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={this.handleClosePopup}>
-      Close
-    </Button>
-  </Modal.Footer>
-</Modal>
-
+          show={this.state.showResolutionPopup}
+          onHide={this.handleClosePopup}
+          size="lg"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Resolution</Modal.Title>
+          </Modal.Header>
+          <Modal.Body style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+            {this.state.resolutionText}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.handleClosePopup}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        <Modal
+          show={this.state.showErrorDescPopup}
+          onHide={this.handleClosePopup}
+          size="lg"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>ErrorDesc</Modal.Title>
+          </Modal.Header>
+          <Modal.Body style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+            {this.state.errorDescText}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.handleClosePopup}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     );
   }

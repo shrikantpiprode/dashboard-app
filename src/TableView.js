@@ -334,6 +334,7 @@ class TableView extends Component {
                 <th>Contact</th>
                 <th>Active</th>
                 <th>Notify</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>{tableRows}</tbody>

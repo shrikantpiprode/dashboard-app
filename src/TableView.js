@@ -152,7 +152,12 @@ class TableView extends Component {
   };
 
   handleSendNotification = (resdata) => {
-    const summary = resdata.errorDesc; // Get the summary from alert.errorDesc
+    let summary = resdata.errorDesc;
+
+  if (resdata.errorDesc.length > 200) {
+    // If errorDesc has more than 200 characters, truncate it
+    summary = resdata.errorDesc.substring(0, 200);
+  }
     console.log('>>>>>>>>>>>>>>>>>>>>>>>>>' + summary);
     const apiUrl = 'http://localhost:8080/notification/jira';
 

@@ -168,9 +168,9 @@ class TableView extends Component {
       },
       body: JSON.stringify(summary),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('JIRA Notification Response:', data);
+     
+      .then((response) => {
+        console.log('JIRA Notification Response:', response);
         window.alert('JIRA ticket has been created successfully');
       })
       .catch((error) => {
